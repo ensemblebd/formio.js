@@ -289,6 +289,9 @@ export default class DataGridComponent extends NestedComponent {
         return;
       }
     }
+	else if (Array.isArray(value) && value.length===2 && !Array.isArray(value[0]) && Object.keys(value[1]).length === 0) {
+		value = Object.values(value[0]); // we were fed an array containing a blank entry (as provided by Base.js) and an object. We want an array of Object values in order to properly render the dataGrid table. And we don't want a spare row at the bottom either (it's discarded here).
+	}
 
     const changed = this.hasChanged(value, this.dataValue);
     this.dataValue = value;
