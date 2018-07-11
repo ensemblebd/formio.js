@@ -342,8 +342,8 @@ export default class SelectComponent extends BaseComponent {
       return;
     }
 
-    // Only load the data if it is visible.
-    if (!this.checkConditions()) {
+    // Only load the data if it is visible, or if we are in builder mode (whereby it is visible currently due to editor, which ignore conditions).
+    if (!this.checkConditions() && typeof (this.root.builderSidebar) === 'undefined') {
       this.itemsLoadedResolve();
       return;
     }
