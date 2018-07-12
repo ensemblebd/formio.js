@@ -1622,7 +1622,7 @@ export default class BaseComponent {
       ));
     }
 
-    if (this.fieldLogic(data)) {
+    if (this.fieldLogic(data) && typeof (this.root.builderSidebar) === 'undefined') { // in builder mode, the redraw causes lack of control buttons for the component, resulting in inability to modify after adding logic to a component. Why would we ned to redraw it in builder mode anyway?
       this.redraw();
     }
 
