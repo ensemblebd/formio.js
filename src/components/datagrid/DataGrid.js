@@ -289,8 +289,15 @@ export default class DataGridComponent extends NestedComponent {
         return;
       }
     }
-	else if (Array.isArray(value) && value.length===2 && !Array.isArray(value[0]) && Object.keys(value[1]).length === 0) {
-		value = Object.values(value[0]); // we were fed an array containing a blank entry (as provided by Base.js) and an object. We want an array of Object values in order to properly render the dataGrid table. And we don't want a spare row at the bottom either (it's discarded here).
+	if (typeof this.root.editForm !== 'undefined' && value.length === 2 && typeof value[0] === 'object' && Object.keys(value[0]).length > 1) { // could fault if select or radio component only has one option. Not sure how best to target this issue, other than to fix the hand that feeds instead of this.
+		value = Object.values(value[0]);
+		const t=[];
+		for (let i=0;i<value.length;i++) {
+			if (typeof value[i] !== 'object') t.push(i);
+		}
+		for (let i=0;i<t.length;i++) {
+			delete value[t[i]];
+		}
 	}
 
     const changed = this.hasChanged(value, this.dataValue);
