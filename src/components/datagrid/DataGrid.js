@@ -274,6 +274,46 @@ export default class DataGridComponent extends NestedComponent {
     return show;
   }
 
+  tryAndFixShittyCode(value) {
+	let isProblematicDueToShittyCode=false;
+	// looks to me like, each time you open a dialog, the NestedComponent system is adding a level of depth to the provisioned defaultValue. The "false array" (represented as object with keys matching indices), must be fixed.
+	while (typeof value[0] === 'object' && Object.keys(value[0]).toString().startsWith('0,')) {
+		const invalidKeysForKVP=[];
+		let dataGridKeyDetected=false;
+		const keys = Object.keys(value[0]);
+		for (let i=0;i<keys.length;i++) {// apparently NestedComponent injects values from previous popups into the current one underneath it's first value kvp.
+			if (isNaN(parseInt(keys[i]))) {
+				dataGridKeyDetected=true;
+			}
+			else {
+				invalidKeysForKVP.push(keys[i]);
+			}
+		}
+		if (dataGridKeyDetected) {
+			for (let i = 0;i<invalidKeysForKVP.length;i++) {
+				delete value[0][invalidKeysForKVP[i]];
+			}
+		}
+		else {
+			value = Object.values(value[0]); // when nothing but array indice keys exist, it must be a kvp set with an invalid depth due to faulty NestedComponent.js code.
+		}
+
+		isProblematicDueToShittyCode=true;
+	}
+	// additionally, we must cleanup the totally fucked values it injects which are either null or a string value of one of the recordset's kvp.
+	if (isProblematicDueToShittyCode) {
+		const t=[];
+		for (let i=0;i<value.length;i++) {
+			if (typeof value[i] !== 'object') t.push(i);
+		}
+		for (let i=t.length-1;i>=0;i--) {
+			value.splice(t[i],1);
+		}
+	}
+
+	return value;
+  }
+
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
     if (!value) {
@@ -289,16 +329,8 @@ export default class DataGridComponent extends NestedComponent {
         return;
       }
     }
-	if (typeof this.root.editForm !== 'undefined' && value.length === 2 && typeof value[0] === 'object' && Object.keys(value[0]).length > 1) { // could fault if select or radio component only has one option. Not sure how best to target this issue, other than to fix the hand that feeds instead of this.
-		value = Object.values(value[0]);
-		const t=[];
-		for (let i=0;i<value.length;i++) {
-			if (typeof value[i] !== 'object') t.push(i);
-		}
-		for (let i=0;i<t.length;i++) {
-			delete value[t[i]];
-		}
-	}
+
+	value = this.tryAndFixShittyCode(value);
 
     const changed = this.hasChanged(value, this.dataValue);
     this.dataValue = value;
