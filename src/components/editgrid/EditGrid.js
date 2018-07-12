@@ -93,13 +93,16 @@ export default class EditGridComponent extends NestedComponent {
         tableClass += `table-${prop} `;
       }
     });
+
     this.tableElement = this.ce('ul', { class: tableClass }, [
       this.headerElement = this.createHeader(),
-      this.rowElements = _.map(this.rows, this.createRow.bind(this)),
+      this.rowElements = _.map(this.editRows, this.createRow.bind(this)),
       this.footerElement = this.createFooter(),
     ]);
 
     this.element.appendChild(this.tableElement);
+
+	this.setValue(this.dataValue); // trigger it manually because it refreshes the [this.editRows] value set.
   }
 
   createHeader() {
