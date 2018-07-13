@@ -1665,9 +1665,12 @@ export default class BaseComponent {
     }, false);
 
     // If component definition changed, replace and mark as changed.
-    if (!_.isEqual(this.component, newComponent)) {
-      this.component = newComponent;
+    if (changed && !_.isMatch(this.component, newComponent)) {
+      this.component = _.merge(this.component, newComponent);
       changed = true;
+    }
+    else {
+      changed = false;
     }
 
     return changed;
@@ -1678,6 +1681,7 @@ export default class BaseComponent {
       switch (action.type) {
         case 'property':
           FormioUtils.setActionProperty(newComponent, action, this.data, data, newComponent, result, this);
+          changed=true;
           break;
         case 'value': {
           const oldValue = this.getValue();
