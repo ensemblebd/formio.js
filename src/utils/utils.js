@@ -437,10 +437,10 @@ export function checkCalculated(component, submission, rowData) {
 export function checkSimpleConditional(component, condition, row, data) {
   let value = null;
   if (row) {
-    value = getValue({ data: row }, condition.when);
+    value = getValue({ data: row }, condition.conditional.when);
   }
   if (data && _.isNil(value)) {
-    value = getValue({ data: data }, condition.when);
+    value = getValue({ data: data }, condition.conditional.when);
   }
   // FOR-400 - Fix issue where falsey values were being evaluated as show=true
   if (_.isNil(value)) {
