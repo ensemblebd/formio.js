@@ -1646,7 +1646,9 @@ export default class BaseComponent {
       return;
     }
 
-    const newComponent = _.cloneDeep(this.originalComponent);
+    const newComponent = _.cloneDeep(this.originalComponent); // warning, next iteration -> originalComponent will be the modified set of applied logic trigger actions.
+	const actionComponent = _.cloneDeep(this.originalComponent);
+    var shouldCheckForReversal=false;
 
     let changed = logics.reduce((changed, logic) => {
       const result = FormioUtils.checkTrigger(
@@ -1661,6 +1663,10 @@ export default class BaseComponent {
       if (result) {
         changed |= this.applyActions(logic.actions, result, data, newComponent);
       }
+      else {
+        this.applyActions(logic.actions, true, data, actionComponent);
+        shouldCheckForReversal=true;
+      }
       return changed;
     }, false);
 
@@ -1671,6 +1677,29 @@ export default class BaseComponent {
     }
     else {
       changed = false;
+      if (shouldCheckForReversal) {
+        let isReversalNeeded = !_.isMatch(newComponent, actionComponent);
+        isReversalNeeded = isReversalNeeded && _.isMatch(this.component, actionComponent);
+        if (isReversalNeeded) { // reversal check & apply
+          const self = this;
+          var objChangeSet = Object.entries(actionComponent);
+          objChangeSet = objChangeSet.filter((item) => (typeof newComponent[item[0]] === 'undefined' || !_.isEqual(newComponent[item[0]], item[1]) ));
+          objChangeSet.reduce((bDiscard, item) => {
+            if (typeof newComponent[item[0]] === 'undefined') {
+              if (_.isBoolean(item[1])) { // when it's boolean we must force the opposite value, otherwise the change is apparently unhandled.
+                self.component[item[0]] = !self.component[item[0]];
+              }
+              else { //  Strings/dates/objects/arrays should be fine, and should just be deleted..
+                delete self.component[item[0]]; // remove it, since it doesn't exist in original, and was provisioned by the action.
+              }
+            }
+            else {
+              self.component[item[0]] = newComponent[item[0]]; // give it the original value.
+            }
+          }, true);
+          changed=true;
+        }
+      }
     }
 
     return changed;
