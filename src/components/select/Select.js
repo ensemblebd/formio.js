@@ -348,6 +348,9 @@ export default class SelectComponent extends BaseComponent {
       return;
     }
 
+	if (typeof this.component.dataSrc === 'undefined' && typeof this.component.data.values !== 'undefined') {
+		this.component.dataSrc = 'values';
+	}
     switch (this.component.dataSrc) {
       case 'values':
         this.component.valueProperty = 'value';
@@ -633,7 +636,7 @@ export default class SelectComponent extends BaseComponent {
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
     const previousValue = this.dataValue;
-    if (this.component.multiple && !Array.isArray(value) && value!==null) {
+    if (this.component.multiple && !Array.isArray(value)) {
       value = [value];
     }
     const hasPreviousValue = Array.isArray(previousValue) ? previousValue.length : previousValue;
