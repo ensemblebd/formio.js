@@ -437,10 +437,10 @@ export function checkCalculated(component, submission, rowData) {
 export function checkSimpleConditional(component, condition, row, data) {
   let value = null;
   if (row) {
-    value = getValue({ data: row }, condition.conditional.when);
+    value = getValue({ data: row }, condition.when || condition.conditional.when);
   }
   if (data && _.isNil(value)) {
-    value = getValue({ data: data }, condition.conditional.when);
+    value = getValue({ data: data }, condition.when || condition.conditional.when);
   }
   // FOR-400 - Fix issue where falsey values were being evaluated as show=true
   if (_.isNil(value)) {
@@ -581,7 +581,7 @@ export function setActionProperty(component, action, row, data, result, instance
 export function getValue(submission, key) {
   const search = (data) => {
     if (_.isPlainObject(data)) {
-      if (_.has(data, key)) {
+      if (_.has(data, key.value || key)) {
         return data[key];
       }
 
