@@ -582,7 +582,7 @@ export function getValue(submission, key) {
   const search = (data) => {
     if (_.isPlainObject(data)) {
       if (_.has(data, key.value || key)) {
-        return data[key];
+        return data[key.value || key];
       }
 
       let value = null;
