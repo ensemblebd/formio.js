@@ -3,6 +3,10 @@
   min-height: 80px;
 }
 
+.formio-form .panel:empty {
+  display: none;
+}
+
 .formio-disabled-input .form-control.flatpickr-input {
   background-color: #eee;
 }
