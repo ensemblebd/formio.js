@@ -203,7 +203,7 @@ export default [
                     },
                     {
                       label: 'required',
-                      value: 'validation.required',
+                      value: 'validate.required',
                       type: 'boolean'
                     },
                     {
